@@ -18,7 +18,7 @@ def build_random_function(min_depth, max_depth):
     branch_functions_1_input = ["cos_pi", "sin_pi", "arctan"]
     branch_functions_2_input = ["prod", "avg", "squared"]
     branch_functions = branch_functions_1_input + branch_functions_2_input
-    leaf_functions = ["x", "y"]
+    leaf_functions = ["x", "y", "t"]
     
     min_depth = max(1, min_depth);
     max_depth = max(min_depth+1, max_depth);
@@ -44,7 +44,7 @@ def build_random_function(min_depth, max_depth):
         return full_function
 
 
-def evaluate_random_function(f, x, y):
+def evaluate_random_function(f, x, y, t):
     """ Evaluate the random function f with inputs x,y
         Representation of the function f is defined in the assignment writeup
 
@@ -67,25 +67,27 @@ def evaluate_random_function(f, x, y):
         return x
     elif func == "y":
         return y
+    elif func == "t":
+        return t
     elif func == "avg":
-        a = evaluate_random_function(f[1], x, y)
-        b = evaluate_random_function(f[2], x, y)
+        a = evaluate_random_function(f[1], x, y, t)
+        b = evaluate_random_function(f[2], x, y, t)
         return (a + b) / 2
     elif func == "prod":
-        a = evaluate_random_function(f[1], x, y)
-        b = evaluate_random_function(f[2], x, y)
+        a = evaluate_random_function(f[1], x, y, t)
+        b = evaluate_random_function(f[2], x, y, t)
         return a * b
     elif func == "squared":
-        a = evaluate_random_function(f[1], x, y)
+        a = evaluate_random_function(f[1], x, y, t)
         return a * a
     elif func == "cos_pi":
-        a = evaluate_random_function(f[1], x, y)
+        a = evaluate_random_function(f[1], x, y, t)
         return math.cos(math.pi*a)
     elif func == "sin_pi":
-        a = evaluate_random_function(f[1], x, y)
+        a = evaluate_random_function(f[1], x, y, t)
         return math.sin(math.pi*a)
     elif func == "arctan":
-        a = evaluate_random_function(f[1], x, y)
+        a = evaluate_random_function(f[1], x, y, t)
         return math.atan(a)
     else:
         print "I don't know that function..."
@@ -183,17 +185,23 @@ def generate_art(filename, x_size=350, y_size=350):
     # Create image and loop over all pixels
     im = Image.new("RGB", (x_size, y_size))
     pixels = im.load()
-    for i in range(x_size):
-        for j in range(y_size):
-            x = remap_interval(i, 0, x_size, -1, 1)
-            y = remap_interval(j, 0, y_size, -1, 1)
-            pixels[i, j] = (
-                    color_map(evaluate_random_function(red_function, x, y)),
-                    color_map(evaluate_random_function(green_function, x, y)),
-                    color_map(evaluate_random_function(blue_function, x, y))
-                    )
+    for k in range(0, 100):
+        print k
+        for i in range(x_size):
+            for j in range(y_size):
+                x = remap_interval(i, 0, x_size, -1, 1)
+                y = remap_interval(j, 0, y_size, -1, 1)
+                t = remap_interval(k, 0, 20, -1, 1)
+                pixels[i, j] = (
+                        color_map(evaluate_random_function(red_function, x, y, t)),
+                        color_map(evaluate_random_function(green_function, x, y, t)),
+                        color_map(evaluate_random_function(blue_function, x, y, t))
+                        )
 
-    im.save(filename)
+        file_name = filename + str(k) + ".png"
+        # print '------'
+        # print file_name
+        im.save(file_name)
 
 if __name__ == "__main__":
     import doctest
@@ -202,7 +210,7 @@ if __name__ == "__main__":
     # Create some computational art!
     # TODO: Un-comment the generate_art function call after you
     #       implement remap_interval and evaluate_random_function
-    generate_art("myart.png")
+    generate_art("frame")
 
     # Test that PIL is installed correctly
     # TODO: Comment or remove this function call after testing PIL install
